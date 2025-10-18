@@ -1,0 +1,5 @@
+{
+  "name": "Native APK Builder",
+  "description": "An application to convert web projects into native APK files. Users can upload a .zip file containing their project, configure app details, and then build and download the final APK.",
+  "requestFramePermissions": []
+}
