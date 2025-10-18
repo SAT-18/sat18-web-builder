@@ -53,7 +53,7 @@ const HomePage: React.FC = () => {
                 const data = await res.json();
 
                 if (lastStatusRef.current !== data.status) {
-                    setBuildLog(prev => [...prev, `Status: ${data.status}`]);
+                    setBuildLog(prev => [...prev, `Status changed to: ${data.status}`]);
                     lastStatusRef.current = data.status;
                 }
                 
@@ -62,7 +62,6 @@ const HomePage: React.FC = () => {
                     extracting: 15,
                     extracted: 25,
                     'building-local': 60,
-                    'building-local-gradle': 60,
                     'local-failed': 40,
                     'uploading-remote': 50,
                     'remote-building': 75,
@@ -77,14 +76,17 @@ const HomePage: React.FC = () => {
                     setBuildLog(prev => [...prev, 'Build finished successfully!']);
                     setApkUrl(`/api/download?buildId=${buildId}`);
                     setIsBuilding(false);
+                    cleanup();
                 } else if (data.status === 'failed') {
                     setError(`Build failed: ${data.error || 'Unknown error'}`);
                     setBuildLog(prev => [...prev, `Error: ${data.error}`]);
                     setIsBuilding(false);
+                    cleanup();
                 }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An unknown error occurred during polling.');
                 setIsBuilding(false);
+                cleanup();
             }
         };
 
@@ -127,6 +129,11 @@ const HomePage: React.FC = () => {
 
         const formData = new FormData();
         formData.append('project', zipFile);
+        formData.append('appName', appName);
+        if (appIcon) {
+            formData.append('icon', appIcon);
+        }
+        formData.append('buildEnv', buildEnv);
 
         try {
             const res = await fetch('/api/upload', {

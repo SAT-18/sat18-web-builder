@@ -16,6 +16,7 @@ const TEMP_DIR = process.env.TEMP_DIR || "projects";
 });
 
 const upload = multer({ dest: UPLOAD_DIR });
+
 const handler = nextConnect({
     onError(error, req, res) {
         res.status(501).json({ error: `Something went wrong! ${error.message}` });
@@ -25,20 +26,38 @@ const handler = nextConnect({
     },
 });
 
-handler.post(upload.single("project"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded." });
+const uploadMiddleware = upload.fields([
+    { name: 'project', maxCount: 1 },
+    { name: 'icon', maxCount: 1 }
+]);
+
+handler.use(uploadMiddleware);
+
+handler.post(async (req, res) => {
+  if (!req.files || !req.files.project || !req.files.project[0]) {
+    return res.status(400).json({ error: "No project file uploaded." });
   }
+
+  const { appName, buildEnv } = req.body;
+  const projectFile = req.files.project[0];
+  const iconFile = req.files.icon ? req.files.icon[0] : null;
   
   const buildId = uuidv4();
-  const targetPath = path.join(UPLOAD_DIR, `${buildId}.zip`);
-  fs.renameSync(req.file.path, targetPath);
+  const projectTargetPath = path.join(UPLOAD_DIR, `${buildId}.zip`);
+  fs.renameSync(projectFile.path, projectTargetPath);
+
+  let iconPath = null;
+    if (iconFile) {
+        const iconExt = path.extname(iconFile.originalname);
+        iconPath = path.join(UPLOAD_DIR, `${buildId}_icon${iconExt}`);
+        fs.renameSync(iconFile.path, iconPath);
+    }
 
   const statusFile = path.join(TEMP_DIR, `${buildId}.status.json`);
   fs.writeFileSync(statusFile, JSON.stringify({ status: "queued", progress: 0 }));
 
   // Do not await this call
-  startBuild(targetPath, { buildId, TEMP_DIR, OUTPUT_DIR, statusFile })
+  startBuild(projectTargetPath, { buildId, TEMP_DIR, OUTPUT_DIR, statusFile, appName, iconPath, buildEnv })
     .catch(err => {
         console.error(`Build failed for ${buildId}:`, err);
         fs.writeFileSync(statusFile, JSON.stringify({ status: "failed", error: String(err) }));

@@ -1,12 +1,13 @@
 {
   "name": "sat18-web-builder",
   "version": "1.0.0",
+  "private": true,
   "description": "SAT18 Web Builder - Build APK from ZIP",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
     "dev": "next dev",
-    "build": "next build"
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "adm-zip": "^0.5.10",
@@ -22,9 +23,16 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@types/node": "20.12.12",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@types/uuid": "^9.0.8",
     "autoprefixer": "^10.4.19",
+    "eslint": "8.57.0",
+    "eslint-config-next": "13.5.5",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3"
+    "tailwindcss": "^3.4.3",
+    "typescript": "5.4.5"
   },
   "engines": {
     "node": ">=18"
