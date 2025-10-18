@@ -1,6 +1,10 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-}
-
-module.exports = nextConfig
+/pages
+  index.tsx (atau index.js)
+  api/
+    upload.js
+    download.js
+server.js
+package.json
+next.config.js
+tailwind.config.js
+postcss.config.js
