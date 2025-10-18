@@ -1,5 +1,5 @@
 {
-  "name": "Native APK Builder",
-  "description": "An application to convert web projects into native APK files. Users can upload a .zip file containing their project, configure app details, and then build and download the final APK.",
+  "name": "SAT18 Web APK Builder",
+  "description": "A full-stack Next.js application to build Android apps directly from uploaded ZIP projects, with support for local and remote build environments.",
   "requestFramePermissions": []
 }

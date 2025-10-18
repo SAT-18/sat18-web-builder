@@ -1,7 +1,7 @@
 {
   "name": "sat18-web-builder",
   "version": "1.0.0",
-  "description": "SAT18 Web Builder — Sistem build APK mandiri yang terhubung ke VPS Node.js.",
+  "description": "SAT18 Web Builder - Build APK/ZIP langsung di situs.",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -15,17 +15,19 @@
     "express": "^4.19.2",
     "form-data": "^4.0.0",
     "multer": "^1.4.5-lts.1",
-    "next": "^14.2.6",
+    "next": "^14.2.3",
     "next-connect": "^1.0.0",
     "node-ssh": "^13.0.0",
+    "pm2": "^5.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "ssh2-sftp-client": "^9.0.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "pm2": "^5.3.0"
-  },
-  "author": "Said Agustian - Sat18 Official",
-  "license": "MIT"
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.4.5"
+  }
 }

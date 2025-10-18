@@ -2,31 +2,23 @@ const fs = require("fs");
 const path = require("path");
 
 function handler(req, res) {
-  try {
-    const outputDir = "/home/container/user_builds/output";
-    const apkPath = path.join(outputDir, "sat18_user_build.apk");
+  const { buildId } = req.query;
+  if (!buildId) {
+    return res.status(400).json({ error: "buildId is required" });
+  }
 
-    if (!fs.existsSync(apkPath)) {
-      return res.status(404).json({
-        success: false,
-        message: "❌ File APK belum tersedia. Silakan tunggu build selesai.",
-      });
-    }
+  const OUTPUT_DIR = process.env.OUTPUT_DIR || "output";
+  // Sanitize buildId to prevent directory traversal
+  const safeBuildId = path.basename(buildId);
+  const apkPath = path.join(OUTPUT_DIR, `${safeBuildId}.apk`);
 
-    // Set header agar browser langsung download
-    res.setHeader("Content-Disposition", 'attachment; filename="sat18_user_build.apk"');
+  if (fs.existsSync(apkPath)) {
+    res.setHeader("Content-Disposition", `attachment; filename="${safeBuildId}.apk"`);
     res.setHeader("Content-Type", "application/vnd.android.package-archive");
-
-    // Stream file ke client
     const fileStream = fs.createReadStream(apkPath);
     fileStream.pipe(res);
-
-  } catch (err) {
-    console.error("❌ Error saat mengirim APK:", err);
-    res.status(500).json({
-      success: false,
-      message: "Terjadi kesalahan saat mengunduh file APK.",
-    });
+  } else {
+    res.status(404).send("File not found or build is not yet complete.");
   }
 }
 

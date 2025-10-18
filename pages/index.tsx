@@ -53,11 +53,10 @@ const HomePage: React.FC = () => {
                 const data = await res.json();
 
                 if (lastStatusRef.current !== data.status) {
-                    setBuildLog(prev => [...prev, `Status changed to: ${data.status}`]);
+                    setBuildLog(prev => [...prev, `Status: ${data.status}`]);
                     lastStatusRef.current = data.status;
                 }
                 
-                // A simple progress simulation based on status
                 const progressMap: { [key: string]: number } = {
                     queued: 5,
                     extracting: 15,
@@ -73,27 +72,23 @@ const HomePage: React.FC = () => {
                 };
                 setBuildProgress(progressMap[data.status] || buildProgress);
 
-
                 if (data.status === 'done') {
                     setBuildProgress(100);
                     setBuildLog(prev => [...prev, 'Build finished successfully!']);
-                    setApkUrl(`/api/download`);
+                    setApkUrl(`/api/download?buildId=${buildId}`);
                     setIsBuilding(false);
-                    cleanup();
                 } else if (data.status === 'failed') {
                     setError(`Build failed: ${data.error || 'Unknown error'}`);
+                    setBuildLog(prev => [...prev, `Error: ${data.error}`]);
                     setIsBuilding(false);
-                    cleanup();
                 }
-// FIX: Replaced incorrect '=>' with '{' for the catch block syntax.
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'An unknown error occurred during polling.');
                 setIsBuilding(false);
-                cleanup();
             }
         };
 
-        intervalRef.current = window.setInterval(pollStatus, 3000);
+        intervalRef.current = window.setInterval(pollStatus, 4000);
 
         return () => cleanup();
 
@@ -102,13 +97,13 @@ const HomePage: React.FC = () => {
     const handleIconChange = (file: File | null) => {
         if (appIconPreview) {
             URL.revokeObjectURL(appIconPreview);
-            setAppIconPreview(null);
         }
         if (file) {
             setAppIcon(file);
             setAppIconPreview(URL.createObjectURL(file));
         } else {
             setAppIcon(null);
+            setAppIconPreview(null);
         }
     };
     
@@ -132,27 +127,18 @@ const HomePage: React.FC = () => {
 
         const formData = new FormData();
         formData.append('project', zipFile);
-        formData.append('appName', appName);
-        if (appIcon) {
-            formData.append('icon', appIcon);
-        }
 
         try {
             const res = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData,
             });
-
             const data = await res.json();
-
             if (!res.ok) {
                 throw new Error(data.error || 'Upload failed');
             }
-
             setBuildLog(prev => [...prev, `Build started. Build ID: ${data.buildId}`]);
             setBuildId(data.buildId);
-
-// FIX: Replaced incorrect '=>' with '{' for the catch block syntax.
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred.');
             setIsBuilding(false);
@@ -163,7 +149,7 @@ const HomePage: React.FC = () => {
         <div className="min-h-screen bg-slate-900 text-white p-4 sm:p-8 flex flex-col items-center">
             <div className="w-full max-w-5xl">
                 <header className="text-center mb-10">
-                    <h1 className="text-4xl sm:text-5xl font-bold text-cyan-400">Native APK Builder</h1>
+                    <h1 className="text-4xl sm:text-5xl font-bold text-cyan-400">SAT18 APK Builder</h1>
                     <p className="text-slate-400 mt-2">Convert your web projects into Android apps in seconds.</p>
                 </header>
 
@@ -212,8 +198,8 @@ const HomePage: React.FC = () => {
                             </div>
                              <p className="text-xs text-slate-500 pt-1 px-1">
                                 {buildEnv === 'local'
-                                    ? 'Requires a local Android SDK and build tools setup.'
-                                    : 'Offloads the build process to a dedicated remote server.'}
+                                    ? 'Builds on this server. Requires Android SDK.'
+                                    : 'Offloads the build to a dedicated remote server.'}
                             </p>
                         </div>
                         
@@ -251,7 +237,7 @@ const HomePage: React.FC = () => {
                                 <p className="text-green-200 mb-4">Your APK is ready for download.</p>
                                 <a
                                     href={apkUrl}
-                                    download="sat18_user_build.apk"
+                                    download={`${appName.replace(/\s+/g, '_') || 'app'}.apk`}
                                     className="inline-block bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105"
                                 >
                                     Download APK

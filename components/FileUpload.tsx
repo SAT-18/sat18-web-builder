@@ -1,4 +1,3 @@
-
 import React, { useCallback } from 'react';
 import { UploadIcon } from './icons/UploadIcon';
 import { ZipIcon } from './icons/ZipIcon';

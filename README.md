@@ -18,7 +18,7 @@ This project provides a web interface to upload an Android project (in a `.zip` 
 ## 🛠️ Tech Stack
 
 -   **Framework:** Next.js (React)
--   **API:** Next.js API Routes
+-   **API:** Next.js API Routes / Express.js
 -   **File Handling:** Multer, Adm-Zip
 -   **Remote Operations:** `node-ssh`, `ssh2-sftp-client`
 -   **Process Execution:** `execa`
@@ -43,36 +43,7 @@ This project provides a web interface to upload an Android project (in a `.zip` 
     ```
     Now, edit the `.env` file with your specific configuration.
 
-    **Basic Configuration:**
-    ```env
-    # Server port
-    PORT=3000
-
-    # Directories for file management
-    UPLOAD_DIR=./uploads
-    OUTPUT_DIR=./output
-    TEMP_DIR=./projects
-
-    # Build process timeout in milliseconds (e.g., 900000ms = 15 minutes)
-    BUILD_TIMEOUT=900000
-    ```
-
-    **Remote Build Configuration (Optional):**
-    To enable the remote build fallback, set `USE_REMOTE=1` and provide your remote server's credentials.
-    ```env
-    # Set to 1 to enable remote build fallback
-    USE_REMOTE=1
-
-    # Remote server details
-    REMOTE_HOST=your-vps-ip-or-domain.com
-    REMOTE_PORT=22
-    REMOTE_USER=your-ssh-user
-    REMOTE_PATH=/home/your-ssh-user/builds
-    REMOTE_PRIVATE_KEY_PATH=~/.ssh/id_rsa_for_vps # Path to your SSH private key
-    ```
-    > **Note:** Ensure the remote server has the necessary build tools (JDK, Android SDK, Gradle) and the `run_remote_build.sh` script is in place and executable.
-
-4.  **Run the application:**
+4.  **Run the application for development:**
     ```bash
     npm run dev
     ```
@@ -80,9 +51,9 @@ This project provides a web interface to upload an Android project (in a `.zip` 
 
 ## 📦 Deployment
 
-To deploy this application, you can use any Node.js hosting provider (like Vercel, Railway, or a traditional VPS).
+This application is designed to be deployed on a Node.js server (e.g., a VPS).
 
-1.  **Build the application:**
+1.  **Build the application for production:**
     ```bash
     npm run build
     ```
@@ -90,6 +61,10 @@ To deploy this application, you can use any Node.js hosting provider (like Verce
 2.  **Start the production server:**
     ```bash
     npm run start
+    ```
+    It is highly recommended to use a process manager like `pm2` to run the application in production.
+    ```bash
+    pm2 start server.js --name "sat18-builder"
     ```
 
 Ensure your hosting environment has the necessary build tools (JDK, Android SDK, Gradle) if you plan to use the "local build" feature on the server. Otherwise, configure it to use a dedicated remote build server.
